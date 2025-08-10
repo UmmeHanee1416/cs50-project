@@ -1,0 +1,32 @@
+.register-btn{
+    @apply mt-1 px-4 py-1 text-sm text-sky-600 font-semibold rounded-full border border-sky-200 hover:text-white  hover:bg-sky-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-600 focus:ring-offset-2;
+}
+
+    .card {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      width: 300px;
+    }
+
+    .progress-container {
+      margin-top: 15px;
+    }
+
+    progress {
+      width: 100%;
+      height: 20px;
+      appearance: none;
+      border-radius: 5px;
+    }
+
+    progress::-webkit-progress-bar {
+      background-color: #f3f3f3;
+      border-radius: 5px;
+    }
+
+    progress::-webkit-progress-value {
+      background-color: #4CAF50;
+      border-radius: 5px;
+    }

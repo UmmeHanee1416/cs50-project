@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Budgets
+{% endblock %}
+
+{% block main %}
+<a href="/saveOrUpdateInvestment"
+         class="mt-1 mb-3 block w-1/5 px-3 py-2 bg-sky-700 border border-slate-300 rounded-md text-sm shadow-sm placeholder-white text-white place-self-end
+                focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-semibold">+ Add New Investment
+      </a>
+<table class="min-w-full text-sm text-left text-gray-700 border border-gray-200">
+    <thead class="bg-sky-100 text-gray-800 uppercase">
+        <tr>
+            <th class="px-6 py-3 border-b">Symbol</th>
+            <th class="px-6 py-3 border-b">Shares</th>
+            <th class="px-6 py-3 border-b">Price</th>
+            <th class="px-6 py-3 border-b">Total Price</th>
+            <th class="px-6 py-3 border-b">Purchase Date</th>
+            <th class="px-6 py-3 border-b">Action</th>
+        </tr>
+    </thead>
+    <tbody class="bg-sky-50 divide-y divide-gray-100">
+        {% for data in rows %}
+        <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4">{{ data.symbol }}</td>
+            <td class="px-6 py-4">{{ data.shares }}</td>
+            <td class="px-6 py-4">{{ data.price }}</td>
+            <td class="px-6 py-4">{{ data.total_price }}</td>
+            <td class="px-6 py-4">{{ data.purchase_date }}</td>
+            <td class="px-6 py-4 space-x-2">
+                <a href="/getInvestmentById?id={{ data.id }}">
+                    <button
+                        class="mb-3 mt-1 px-4 py-1 text-sm text-sky-600 font-semibold rounded-full border border-sky-200 hover:text-white
+                               hover:bg-sky-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-600 focus:ring-offset-2">Edit</button></a>
+                <a href="/deleteInvestment?id={{ data.id }}">
+                    <button
+                        class="mb-3 mt-1 px-4 py-1 text-sm text-[#C74343] font-semibold rounded-full border border-[#C74343] hover:text-white
+                               hover:bg-[#C74343] hover:border-transparent focus:outline-none focus:ring-2 focus:ring-[#C74343] focus:ring-offset-2">Delete</button>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
