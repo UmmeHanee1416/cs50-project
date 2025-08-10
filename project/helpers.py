@@ -24,7 +24,7 @@ def apology(message, code=400):
         ]:
             s = s.replace(old, new)
         return s
-    return render_template("error.html", top=code, bottom=escape(message)), code
+    return render_template("core/error.html", top=code, bottom=escape(message)), code
 
 def lookup(symbol):
     """Look up quote for symbol."""

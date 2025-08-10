@@ -54,7 +54,7 @@ def index():
             "select * from users where id = ?", session['user_id'])
     except:
         return apology("error occurred")
-    return render_template("index.html", income=income, expense=expense, budgets=budgets,
+    return render_template("core/index.html", income=income, expense=expense, budgets=budgets,
                            budgetsYearly=budgetsYearly, transactions=transactions, user=user)
 
 
@@ -123,7 +123,7 @@ def track():
         else:
             progress = (actual_sum / budget_sum) * 100
 
-    return render_template("tracking.html", categories=TRANSACTION_CATEGORY_EXPENSE, types=PERIOD_TYPE,
+    return render_template("core/tracking.html", categories=TRANSACTION_CATEGORY_EXPENSE, types=PERIOD_TYPE,
                            progress=progress, actual_sum=actual_sum, budget_sum=budget_sum, actual_row=actual_row)
 
 
@@ -548,6 +548,9 @@ def readNotification():
         return apology("error occurred")
     return jsonify({"status":200})
 
+@app.route("/profile")
+def profile():
+    return render_template("core/profile.html")
 
 
 
