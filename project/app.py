@@ -1,10 +1,11 @@
 from cs50 import SQL
 from flask import Flask, flash, jsonify, render_template, request, redirect, session
 from flask_session import Session
-from flask_socketio import SocketIO, emit
+# from flask_socketio import SocketIO, emit
 from helpers import login_required, apology, lookup
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, date, timedelta
+from flask_apscheduler import APScheduler
 
 app = Flask(__name__)
 
@@ -12,7 +13,17 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["SECRET_KEY"] = "secret&"
 Session(app)
-socketIo = SocketIO(app)
+# socketio = SocketIO(app)
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
+
+# @socketio.on('connect')
+# def on_connect():
+#     user_id = get_user_id_somehow()  # e.g., from auth token
+#     join_room(f"user_{user_id}")
+
+
 
 db = SQL("sqlite:///project.db")
 
@@ -47,11 +58,27 @@ def index():
         budgets = db.execute(
             "select * from budgets where user_id = ? order by timestamp desc limit 5", session['user_id'])
         budgetsYearly = db.execute(
-            "select distinct b.period_type, b.category, b.amount, t.category as trans_category, t.amount as trans_amount "
-            "from budgets b inner join transactions t on b.user_id = t.user_id and b.category = t.category "
-            "and b.user_id = ? and b.period_type = 'Yearly' order by b.amount asc limit 3", session['user_id'])
+            "select distinct b.period_type, b.category, b.amount, t.category as trans_category, "
+            "t.amount as trans_amount, (t.amount*1.0/b.amount)*100 as percent from budgets b inner join "
+            "transactions t on b.user_id = t.user_id and b.category = t.category and b.user_id = ? "
+            "and b.period_type = 'Yearly' order by b.amount asc limit 3", session['user_id'])
         user = db.execute(
             "select * from users where id = ?", session['user_id'])
+        percent = budgetsYearly[0]['percent'] if budgetsYearly and budgetsYearly[0]['percent'] is not None else 0
+        if 90.0 < int(percent) < 100.0:
+            message = budgetsYearly[0]['trans_category'] + \
+                " Transaction approaching to budget."
+            db.execute("insert into notifications (user_id, message, module) values(?, ?, ?)",
+                       session['user_id'], message, "Transactions")
+            # socketio.emit("new_notification", {
+            #               "message": message, "module": "Transactions", "user_id": session['user_id']})
+        if int(percent) > 100.0:
+            message = budgetsYearly[0]['trans_category'] + \
+                " Transaction exceeding over budget."
+            db.execute("insert into notifications (user_id, message, module) values(?, ?, ?)",
+                       session['user_id'], message, "Transactions")
+            # socketio.emit("new_notification", {
+            #               "message": message, "module": "Transactions", "user_id": session['user_id']})
     except:
         return apology("error occurred")
     return render_template("core/index.html", income=income, expense=expense, budgets=budgets,
@@ -189,7 +216,8 @@ def passReset():
             message = "Password updated."
             db.execute("insert into notifications (user_id, message, module) values(?, ?, ?)",
                        row[0]['id'], message, "profile")
-            socketIo.emit("new_notification", {"message":message,"module":"profile", "user_id":row[0]['id']})
+            # socketio.emit("new_notification", {
+            #               "message": message, "module": "profile", "user_id": row[0]['id']})
             return redirect("/login")
         except:
             return apology("error occurred!", 500)
@@ -227,7 +255,7 @@ def saveOrUpdateTransaction():
             userCash -= int(amount)
         if not amount:
             return apology("must provide amount")
-        if not amount < int(user[0]['cash']):
+        if not amount > int(user[0]['cash']):
             return apology("insufficient balance")
         if not category:
             return apology("must provide transaction category")
@@ -254,7 +282,8 @@ def saveOrUpdateTransaction():
                 message = "One transaction added."
                 db.execute("insert into notifications (user_id, message, module) values(?, ?, ?)",
                            session['user_id'], message, "Transactions")
-                socketIo.emit("new_notification", {"message":message,"module":"Transactions", "user_id":session['user_id']})
+                # socketio.emit("new_notification", {
+                #               "message": message, "module": "Transactions", "user_id": session['user_id']})
                 db.execute("update users set cash = ? where id = ?",
                            userCash, session['user_id'])
                 return redirect("/getAllTransactions")
@@ -271,7 +300,8 @@ def saveOrUpdateTransaction():
                 message = "One transaction updated."
                 db.execute("insert into notifications (user_id, message, module) values(?, ?, ?)",
                            session['user_id'], message, "Transactions")
-                socketIo.emit("new_notification", {"message":message,"module":"Transactions", "user_id":session['user_id']})
+                # socketio.emit("new_notification", {
+                #               "message": message, "module": "Transactions", "user_id": session['user_id']})
                 db.execute("update users set cash = ? where id = ?",
                            userCash, session['user_id'])
                 return redirect("/getAllTransactions")
@@ -310,10 +340,16 @@ def deleteTransaction():
         message = "One transaction deleted."
         db.execute("insert into notifications (user_id, message, module) values(?, ?, ?)",
                    session['user_id'], message, "Transactions")
-        socketIo.emit("new_notification", {"message":message,"module":"Transactions", "user_id":session['user_id']})
+        # socketio.emit("new_notification", {
+        #               "message": message, "module": "Transactions", "user_id": session['user_id']})
         return redirect("/getAllTransactions")
     except:
         return apology("error occurred in delete")
+
+@app.route("/uploadCsv", methods=['POST', 'GET'])
+@login_required
+def uploadCsv():
+    return render_template("transaction/csv_upload.html")
 
 
 @app.route("/getCategory")
@@ -386,7 +422,8 @@ def saveOrUpdateBudget():
                 message = "One Budget added."
                 db.execute("insert into notifications (user_id, message, module) values(?, ?, ?)",
                            session['user_id'], message, "Budgets")
-                socketIo.emit("new_notification", {"message":message,"module":"Budgets", "user_id":session['user_id']})
+                # socketio.emit("new_notification", {
+                #               "message": message, "module": "Budgets", "user_id": session['user_id']})
                 return redirect("/getAllBudgets")
             except:
                 return apology("error in budget creating")
@@ -401,7 +438,8 @@ def saveOrUpdateBudget():
                 message = "One budget updated."
                 db.execute("insert into notifications (user_id, message, module) values(?, ?, ?)",
                            session['user_id'], message, "Budgets")
-                socketIo.emit("new_notification", {"message":message,"module":"Budgets", "user_id":session['user_id']})
+                # socketio.emit("new_notification", {
+                #               "message": message, "module": "Budgets", "user_id": session['user_id']})
                 return redirect("/getAllBudgets")
             except:
                 return apology("error in budget updating")
@@ -438,7 +476,8 @@ def deleteBudget():
         message = "One budget deleted."
         db.execute("insert into notifications (user_id, message, module) values(?, ?, ?)",
                    session['user_id'], message, "Budgets")
-        socketIo.emit("new_notification", {"message":message,"module":"Budgets", "user_id":session['user_id']})
+        # socketio.emit("new_notification", {
+        #               "message": message, "module": "Budgets", "user_id": session['user_id']})
         return redirect("/getAllBudgets")
     except:
         return apology("error occurred in delete")
@@ -471,7 +510,8 @@ def saveOrUpdateInvestment():
                 message = "One investment added."
                 db.execute("insert into notifications (user_id, message, module) values(?, ?, ?)",
                            session['user_id'], message, "Investments")
-                socketIo.emit("new_notification", {"message":message,"module":"Investments", "user_id":session['user_id']})
+                # socketio.emit("new_notification", {
+                #               "message": message, "module": "Investments", "user_id": session['user_id']})
                 return redirect("/getAllInvestments")
             except:
                 return apology("error occurred")
@@ -482,7 +522,8 @@ def saveOrUpdateInvestment():
                 message = "One investment updated."
                 db.execute("insert into notifications (user_id, message, module) values(?, ?, ?)",
                            session['user_id'], message, "Investments")
-                socketIo.emit("new_notification", {"message":message,"module":"Investments", "user_id":session['user_id']})
+                # socketio.emit("new_notification", {
+                #               "message": message, "module": "Investments", "user_id": session['user_id']})
                 return redirect("/getAllInvestments")
             except:
                 return apology("error occurred")
@@ -527,36 +568,201 @@ def deleteInvestment():
         db.execute("delete from investments where id = ?", id)
         message = "One investment deleted."
         db.execute("insert into notifications (user_id, message, module) values(?, ?, ?)",
-                   session['user_id'], message, "Investments", 0)
-        socketIo.emit("new_notification", {"message":message,"module":"Investments", "user_id":session['user_id']})
+                   session['user_id'], message, "Investments")
+        # socketio.emit("new_notification", {
+        #               "message": message, "module": "Investments", "user_id": session['user_id']})
         return redirect("/getAllInvestments")
     except:
         return apology("error occurred in delete")
 
+
 @app.route("/getNotifications")
 @login_required
 def getNotifications():
-    notifications = db.execute("select * from notifications where user_id = ? order by timestamp desc", session['user_id'])
+    notifications = db.execute("select * from notifications where user_id = ? "
+                               "order by datestamp desc, timestamp desc", session['user_id'])
     return jsonify(notifications)
 
+
 @app.route("/markReadNotification")
+@login_required
 def readNotification():
     id = request.args.get("id")
     try:
         db.execute("update notifications set read = ? where id = ?", 1, id)
     except:
         return apology("error occurred")
-    return jsonify({"status":200})
-
-@app.route("/profile")
-def profile():
-    return render_template("core/profile.html")
+    return jsonify({"status": 200})
 
 
+@app.route("/saveOrUpdateRecursion", methods=['POST', 'GET'])
+@login_required
+def saveOrUpdateRecursion():
+    user = db.execute(
+        "select * from users where id = ?", session['user_id'])
+    if request.method == 'POST':
+        id = request.form.get("id")
+        type = request.form.get("type")
+        category = request.form.get("category")
+        amount = request.form.get("amount")
+        start_date = request.form.get("start_date")
+        frequency = request.form.get("frequency")
+        frequency_count = request.form.get("frequency_count")
+        next_due = request.form.get("next_due")
+        end_date = request.form.get("end_date")
+        description = request.form.get("description")
+        auto_apply = request.form.get("auto_apply")
+        if not type:
+            return apology("must provide transaction type")
+        if type not in TRANSACTION_TYPE:
+            return apology("invalid transaction type")
+        if not category:
+            return apology("must provide category")
+        if category not in TRANSACTION_CATEGORY_EXPENSE and category not in TRANSACTION_CATEGORY_INCOME:
+            return apology("invalid transaction category")
+        if not amount:
+            return apology("must provide amount")
+        if not start_date:
+            return apology("must provide start date")
+        if not frequency:
+            return apology("must provide frequency")
+        if frequency not in PERIOD_TYPE:
+            return apology("invalid frequency")
+        if not frequency_count:
+            return apology("must provide frequency count")
+        apply = 1 if auto_apply == 'on' else 0
+        try:
+            if not id:
+                db.execute("insert into recurring_transaction (user_id, type, category, amount, start_date, "
+                           "frequency, frequency_count, next_due, end_date, auto_apply, last_process, description) values "
+                           "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", session[
+                               'user_id'], type, category, amount, start_date,
+                           frequency, frequency_count, next_due, end_date, apply, start_date, description)
+                message = "One Periodic Transaction Added."
+                db.execute("insert into notifications (user_id, message, module) values(?, ?, ?)",
+                           session['user_id'], message, "Recursions")
+                # socketio.emit("new_notification", {
+                #               "message": message, "module": "Investments", "user_id": session['user_id']})
+            if id:
+                db.execute("update recurring_transaction set user_id = ?, type = ?, category = ?, amount = ?, start_date = ?, "
+                           "frequency = ?, frequency_count = ?, next_due = ?, end_date = ?, auto_apply=  ?, last_process = ?, description = ? "
+                           "where id = ?", session['user_id'], type, category, amount, start_date,
+                           frequency, frequency_count, next_due, end_date, apply, start_date, description, id)
+                message = "One Periodic Transaction Updated."
+                db.execute("insert into notifications (user_id, message, module) values(?, ?, ?)",
+                           session['user_id'], message, "Recursions")
+                # socketio.emit("new_notification", {
+                #               "message": message, "module": "Investments", "user_id": session['user_id']})
+            return redirect("/getAllRecursions")
+        except:
+            return apology("error occurred!")
+    return render_template("recursive_transaction/add.html", types=TRANSACTION_TYPE,
+                           period_type=PERIOD_TYPE, user=user)
 
 
+@app.route("/getAllRecursions")
+@login_required
+def getAllRecursions():
+    try:
+        transactions = db.execute(
+            "select * from recurring_transaction where user_id = ?", session['user_id'])
+    except:
+        return apology("error occurred")
+    return render_template("recursive_transaction/list.html", list=transactions)
 
 
+@app.route("/getRecursionById")
+@login_required
+def getRecursionById():
+    id = request.args.get('id')
+    transaction = db.execute(
+        "select * from recurring_transaction where id = ?", id)
+    user = db.execute("select * from users where id = ?", session["user_id"])
+    if transaction[0]['type'] == 'Income':
+        categories = TRANSACTION_CATEGORY_INCOME
+    else:
+        categories = TRANSACTION_CATEGORY_EXPENSE
+    return render_template("recursive_transaction/edit.html", transaction=transaction, types=TRANSACTION_TYPE,
+                           period_type=PERIOD_TYPE, user=user, categories=categories)
 
-if __name__ == "__main__":
-    socketIo.run(app, debug=True)
+
+@app.route("/deleteRecursion")
+@login_required
+def deleteRecursion():
+    id = request.args.get("id")
+    try:
+        db.execute("delete from recurring_transaction where id = ?", id)
+        message = "One investment deleted."
+        db.execute("insert into notifications (user_id, message, module) values(?, ?, ?)",
+                   session['user_id'], message, "Recursions")
+        # socketio.emit("new_notification", {
+        #               "message": message, "module": "Recursions", "user_id": session['user_id']})
+        return redirect("/getAllRecursions")
+    except:
+        return apology("error occurred in delete")
+
+
+def automateTransaction():
+    with app.app_context():
+        today = date.today()
+        users = db.execute("SELECT id FROM users")
+        for u in users:
+            u_id = u['id']
+            user = db.execute("SELECT * FROM users WHERE id = ?", u_id)
+            transactions = db.execute(
+                "SELECT * FROM recurring_transaction WHERE user_id = ?", u_id
+            )
+            for transaction in transactions:
+                try:
+                    dt = datetime.strptime(transaction['next_due'], "%Y-%m-%d").date()
+                    if dt <= today:
+                        type_ = transaction['type']
+                        amount = float(transaction['amount'])
+                        category = transaction['category']
+                        frequency = transaction['frequency']
+                        description = transaction['description']
+                        if frequency == 'Yearly':
+                            date_val = str(dt.year)
+                        elif frequency == 'Monthly':
+                            date_val = dt.strftime("%Y-%m")
+                        else:
+                            date_val = f"{dt.isocalendar().year}-W{dt.isocalendar().week:02d}"
+                        db.execute("""
+                            INSERT INTO transactions
+                            (user_id, type, amount, category, date_type, date, description)
+                            VALUES (?, ?, ?, ?, ?, ?, ?)
+                        """, u_id, type_, amount, category, frequency, date_val, description)
+                        db.execute("""
+                            INSERT INTO notifications (user_id, message, module)
+                            VALUES (?, ?, ?)
+                        """, u_id, "One transaction added from periodic transaction.", "Transactions")
+                        userCash = float(user[0]['cash'])
+                        if type_ == 'Income':
+                            userCash += amount
+                        elif type_ == 'Expense':
+                            userCash -= amount
+                        db.execute("UPDATE users SET cash = ? WHERE id = ?", userCash, u_id)
+                        if frequency == 'Yearly':
+                            new_due = date(dt.year + 1, dt.month, dt.day)
+                        elif frequency == 'Monthly':
+                            month = dt.month + 1 if dt.month < 12 else 1
+                            year = dt.year if dt.month < 12 else dt.year + 1
+                            day = min(dt.day, 28)
+                            new_due = date(year, month, day)
+                        elif frequency == 'Weekly':
+                            new_due = dt + timedelta(weeks=1)
+                        db.execute("""
+                            UPDATE recurring_transaction
+                            SET next_due = ?, last_process = ?
+                            WHERE id = ?
+                        """, new_due.isoformat(), today, transaction['id'])
+                except Exception as e:
+                    print(f"Error processing transaction {transaction['id']}: {e}")
+
+
+scheduler.add_job(id="apply_requrring",
+                  func=automateTransaction, trigger='interval', hours=24)
+
+
+# if __name__ == "__main__":
+#     socketio.run(app, debug=True)

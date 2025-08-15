@@ -14,6 +14,7 @@ Search
     <button class="mb-3 mt-1 px-4 py-1 text-sm text-sky-600 font-semibold rounded-full border border-sky-200 hover:text-white
     hover:bg-sky-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-600 focus:ring-offset-2" type="submit">Search</button>
 </form>
+{% if row %}
 <table class="min-w-full text-sm text-left text-gray-700 border border-gray-200">
     <thead class="bg-gray-100 text-gray-800 uppercase">
         <tr>
@@ -30,4 +31,9 @@ Search
         </tr>
     </tbody>
 </table>
+{% else %}
+<span>
+    No Data Found!
+</span>
+{% endif %}
 {% endblock %}

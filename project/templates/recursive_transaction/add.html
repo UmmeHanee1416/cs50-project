@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Periodic Transaction
+{% endblock %}
+
+{% block main %}
+<form action="/saveOrUpdateRecursion" method="post">
+    <input type="hidden" name="id">
+    <div class="mb-3">
+        <input autocomplete="off" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-500 text-slate-500
+      focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" name="username" placeholder="Username"
+            type="text" value="{{ user[0]['username'] }}" required readonly>
+    </div>
+    <div class="mb-3">
+        <select class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm text-slate-500
+      focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" name="type"
+            onchange="getCategory(this)">
+            <option value="" selected disabled>Please Select Type *</option>
+            {% for type in types %}
+            <option value="{{ type }}">{{ type }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <select class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 text-slate-500
+      focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" name="category" id="category">
+            <option value="" selected disabled>Please Select Category *</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <input autocomplete="off" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-500 text-slate-500
+      focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" name="amount" placeholder="Amount *"
+            type="number" required>
+    </div>
+    <div class="mb-3">
+        <input autocomplete="off" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300
+    rounded-md text-sm shadow-sm placeholder-slate-500 text-slate-500
+      focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" name="start_date" id="start_date"
+            placeholder="Start Date" onfocus="(this.type='date')" onblur="(this.type='text')" required>
+    </div>
+    <div class="mb-3">
+        <select class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 text-slate-500
+      focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" name="frequency" id="frequency"
+            required>
+            <option value="" selected disabled>Please Select Frequency Type *</option>
+            {% for type in period_type %}
+            <option value="{{ type }}">{{ type }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <input autocomplete="off" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300
+        rounded-md text-sm shadow-sm placeholder-slate-500 text-slate-500
+      focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" name="frequency_count"
+      id="frequency_count" type="number" placeholder="Frequency Count" onkeyup="calculateDueDate(this)"
+      required>
+    </div>
+    <div class="mb-3">
+        <input autocomplete="off" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300
+    rounded-md text-sm shadow-sm placeholder-slate-500 text-slate-500
+      focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" name="next_due" id="next_due"
+            type="text" placeholder="Next Due" required readonly>
+    </div>
+    <div class="mb-3">
+        <input autocomplete="off" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300
+    rounded-md text-sm shadow-sm placeholder-slate-500 text-slate-500
+      focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" name="end_date" id="end_date"
+            placeholder="End Date" onfocus="(this.type='date')" onblur="(this.type='text')">
+    </div>
+    <div class="mb-3">
+        <textarea class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-500 text-slate-500
+      focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" name="description"
+            placeholder="Description (Optional)"></textarea>
+    </div>
+    <div class="mb-3">
+        <label class="flex items-center cursor-pointer justify-start">
+            <input type="checkbox" name="auto_apply" id="auto_apply" class="sr-only peer" checked>
+            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4
+            peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700
+            peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
+            peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px]
+            after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full
+            after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600
+            dark:peer-checked:bg-sky-600">
+            </div>
+            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-slate-500">Auto apply</span>
+        </label>
+    </div>
+    <button class="mb-3 mt-1 px-4 py-1 text-sm text-sky-600 font-semibold rounded-full border border-sky-200 hover:text-white
+    hover:bg-sky-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-600 focus:ring-offset-2"
+        type="submit">+ Add</button>
+</form>
+{% endblock %}

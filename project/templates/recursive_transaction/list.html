@@ -1,45 +1,49 @@
 {% extends "layout.html" %}
 
 {% block title %}
-Transactions
+Periodic Transactions
 {% endblock %}
 
 {% block main %}
-<div class="flex grid-col-2 gap-2 justify-end">
-    <a href="/saveOrUpdateTransaction" class="mt-1 mb-3 block w-1/5 px-3 py-2 bg-sky-700 border border-slate-300 rounded-md text-sm shadow-sm placeholder-white text-white place-self-end
-                focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-semibold">+ Add New
-        Transaction
-    </a>
-    <a href="/getAllRecursions" class="mt-1 mb-3 block w-1/4 px-3 py-2 bg-sky-700 border border-slate-300 rounded-md text-sm shadow-sm placeholder-white text-white place-self-end
-                focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-semibold">Periodic Transaction
-    </a>
-</div>
+<a href="/saveOrUpdateRecursion" class="mt-1 mb-3 block w-1/4 px-3 py-2 bg-sky-700 border border-slate-300 rounded-md text-sm shadow-sm placeholder-white text-white place-self-end
+                focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-semibold place-self-end">+
+    Add New
+    Periodic Transaction
+</a>
 
 <table class="min-w-full text-sm text-left text-gray-700 border border-gray-200">
     <thead class="bg-sky-100 text-gray-800 uppercase">
         <tr>
-            <th class="px-6 py-3 border-b">Amount</th>
             <th class="px-6 py-3 border-b">Type</th>
             <th class="px-6 py-3 border-b">Category</th>
+            <th class="px-6 py-3 border-b">Amount</th>
+            <th class="px-6 py-3 border-b">Start Date</th>
+            <th class="px-6 py-3 border-b">Frequency</th>
+            <th class="px-6 py-3 border-b">Frequency Count</th>
+            <th class="px-6 py-3 border-b">Next Due</th>
+            <th class="px-6 py-3 border-b">Auto Apply</th>
             <th class="px-6 py-3 border-b">Description</th>
-            <th class="px-6 py-3 border-b">Date</th>
             <th class="px-6 py-3 border-b">Action</th>
         </tr>
     </thead>
     <tbody class="bg-sky-50 divide-y divide-gray-100">
         {% for data in list %}
         <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4">{{ data.amount }}</td>
             <td class="px-6 py-4">{{ data.type }}</td>
             <td class="px-6 py-4">{{ data.category }}</td>
+            <td class="px-6 py-4">{{ data.amount }}</td>
+            <td class="px-6 py-4">{{ data.start_date }}</td>
+            <td class="px-6 py-4">{{ data.frequency }}</td>
+            <td class="px-6 py-4">{{ data.frequency_count }}</td>
+            <td class="px-6 py-4">{{ data.next_due }}</td>
+            <td class="px-6 py-4">{% if data.auto_apply == 1 %} On {% else %} Off {% endif %}</td>
             <td class="px-6 py-4">{{ data.description }}</td>
-            <td class="px-6 py-4">{{ data.date }}</td>
             <td class="px-6 py-4 space-x-2">
-                <a href="/getTransactionById?id={{ data.id }}">
+                <a href="/getRecursionById?id={{ data.id }}">
                     <button
                         class="mb-3 mt-1 px-4 py-1 text-sm text-sky-600 font-semibold rounded-full border border-sky-200 hover:text-white
                                hover:bg-sky-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-600 focus:ring-offset-2">Edit</button></a>
-                <a href="/deleteTransaction?id={{ data.id }}">
+                <a href="/deleteRecursion?id={{ data.id }}">
                     <button
                         class="mb-3 mt-1 px-4 py-1 text-sm text-[#C74343] font-semibold rounded-full border border-[#C74343] hover:text-white
                                hover:bg-[#C74343] hover:border-transparent focus:outline-none focus:ring-2 focus:ring-[#C74343] focus:ring-offset-2">Delete</button>

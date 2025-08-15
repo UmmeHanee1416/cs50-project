@@ -113,13 +113,13 @@ async function loadNotifications() {
     count = 0
     dropdown.innerHTML = ''
     data.forEach(n => {
-        dropdown.innerHTML += `<a href='/getAll${n.module}' class='grid-cols-2 gap-2 flex justify-around ${n.read ? '':'font-bold'}'
+        dropdown.innerHTML += `<a href='/getAll${n.module}' class='grid-cols-2 gap-2 flex justify-around ${n.read ? '' : 'font-bold'}'
         onclick='markRead(${n.id})'>
         <span class="block px-2 py-2 text-sm text-gray-700
         focus:bg-gray-100 focus:outline-none">${n.message}</span>
         <span class="block px-2 py-2 text-sm text-gray-700
         focus:bg-gray-100 focus:outline-none">${n.datestamp}</span></a>`;
-        n.read ? '':count++
+        n.read ? '' : count++
     });
     countElm.innerText = count
 }
@@ -130,8 +130,44 @@ function toggleNotifications() {
     dropdown.hidden = !dropdown.hidden;
     countElm.innerText = 0
 }
-async function markRead(id){
-console.log(id)
-let res = await fetch("/markReadNotification?id="+id)
+
+async function markRead(id) {
+    console.log(id)
+    let res = await fetch("/markReadNotification?id=" + id)
 }
+
 loadNotifications()
+
+function calculateDueDate(countInput) {
+    const start_date = new Date(document.querySelector("#start_date").value);
+    const type = document.querySelector("#frequency").value;
+    const next_due = document.querySelector("#next_due");
+    let count = parseInt(countInput.value, 10);
+    if (isNaN(count) || count < 1) {
+        alert("Invalid count");
+        return;
+    }
+    const limits = {
+        Weekly: 3,
+        Monthly: 11,
+        Yearly: 10
+    };
+    if (count > limits[type]) {
+        alert("Invalid count");
+        return;
+    }
+    let next = new Date(start_date);
+    if (type === 'Weekly') {
+        next.setDate(next.getDate() + count * 7);
+    } else if (type === 'Monthly') {
+        next.setMonth(next.getMonth() + count);
+    } else if (type === 'Yearly') {
+        next.setFullYear(next.getFullYear() + count);
+    }
+    const year = next.getFullYear();
+    const month = String(next.getMonth() + 1).padStart(2, '0');
+    const day = String(next.getDate()).padStart(2, '0');
+
+    next_due.value = `${year}-${month}-${day}`;
+}
+
