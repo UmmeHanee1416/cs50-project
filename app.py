@@ -257,14 +257,14 @@ def saveOrUpdateTransaction():
             return apology("must provide transaction type")
         if type not in TRANSACTION_TYPE:
             return apology("invalid transaction type")
+        if not amount:
+            return apology("must provide amount")
         if type == 'Income':
             userCash += int(amount)
         if type == 'Expense':
+            if not amount > int(user[0]['cash']):
+                return apology("insufficient balance")
             userCash -= int(amount)
-        if not amount:
-            return apology("must provide amount")
-        if not amount > int(user[0]['cash']):
-            return apology("insufficient balance")
         if not category:
             return apology("must provide transaction category")
         if category not in TRANSACTION_CATEGORY_EXPENSE and category not in TRANSACTION_CATEGORY_INCOME:
@@ -322,7 +322,7 @@ def saveOrUpdateTransaction():
 @login_required
 def getAllTransactions():
     list = db.execute(
-        "select * from transactions where user_id = ?", session['user_id'])
+        "select * from transactions where user_id = ? order by id desc", session['user_id'])
     return render_template("transaction/list.html", list=list)
 
 
@@ -493,7 +493,7 @@ def saveOrUpdateBudget():
 def getAllBudgets():
     try:
         list = db.execute(
-            "select * from budgets where user_id = ?", session['user_id'])
+            "select * from budgets where user_id = ? order by id desc", session['user_id'])
     except:
         return apology("error occurred!")
     return render_template("budget/list.html", list=list)
@@ -588,7 +588,7 @@ def symbol():
 @login_required
 def getAllInvestments():
     rows = db.execute(
-        "select * from investments where user_id = ?", session['user_id'])
+        "select * from investments where user_id = ? order by id desc", session['user_id'])
     return render_template("investment/list.html", rows=rows)
 
 
@@ -751,10 +751,10 @@ def profile():
     year = str(datetime.now().year)
     income = db.execute("SELECT sum(amount) FROM transactions WHERE type = 'Income'  AND ((length(date) = 10 "
                         "AND substr(date, 1, 4) = ?) OR (length(date) = 7  AND substr(date, 1, 4) = ?) OR (length(date) = 7  "
-                        "AND substr(date, 1, 4) = ?) OR (length(date) = 4 AND substr(date, 1, 4) = ?))", year, year, year, year)
+                        "AND substr(date, 1, 4) = ?) OR (length(date) = 4 AND substr(date, 1, 4) = ?)) and user_id = ?", year, year, year, year, session['user_id'])
     expense = db.execute("SELECT sum(amount) FROM transactions WHERE type = 'Expense'  AND ((length(date) = 10 "
                          "AND substr(date, 1, 4) = ?) OR (length(date) = 7  AND substr(date, 1, 4) = ?) OR (length(date) = 7  "
-                         "AND substr(date, 1, 4) = ?) OR (length(date) = 4 AND substr(date, 1, 4) = ?))", year, year, year, year)
+                         "AND substr(date, 1, 4) = ?) OR (length(date) = 4 AND substr(date, 1, 4) = ?)) and user_id = ?", year, year, year, year, session['user_id'])
     if request.method == 'POST':
         name = request.form.get("prUsername")
         mail = request.form.get("prEmail")
