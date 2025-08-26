@@ -219,8 +219,7 @@ async function saveData() {
 }
 
 function writePassword() {
-    var div = document.querySelector("#password_div")
-    div.hidden = false
+    document.querySelector("#password_div").hidden = false
 }
 
 async function updatePass() {

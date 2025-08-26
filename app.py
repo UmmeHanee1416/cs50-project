@@ -358,6 +358,7 @@ def deleteTransaction():
 @app.route("/uploadCsv", methods=['POST', 'GET'])
 @login_required
 def uploadCsv():
+    user = db.execute("select * from users where id = ?", session["user_id"])
     if request.method == 'POST':
         if 'csvFile' not in request.files:
             return apology("must provide file")
@@ -367,6 +368,7 @@ def uploadCsv():
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
+        userCash = int(user[0]['cash'])
         with open(filepath, newline='', encoding='utf-8') as csvFile:
             reader = csv.DictReader(csvFile)
             for row in reader:
@@ -377,12 +379,15 @@ def uploadCsv():
                     amount = float(row['Amount'].replace(',', ''))
                     category_type = row['Type']
                     category = row['Category']
-                    print(
-                        f"date type: {date_type}, date: {date}, description: {description}, amount: {amount}, category type: {category_type}, category: {category}")
                     db.execute("insert into transactions (user_id, amount, type, category, description, date_type, date) "
                                "values (?, ?, ?, ?, ?, ?, ?)", session['user_id'], amount, category_type, category, description, date_type, date)
+                    if category_type == 'Income':
+                        userCash += amount
+                    if category_type == 'Expense':
+                        userCash -= amount
                 except:
                     return apology("error occurred")
+            db.execute("update users set cash = ? where id = ?", userCash, session['user_id'])
             message = "Transactions added from file"
             db.execute("insert into notifications (user_id, message, module) values(?, ?, ?)",
                        session['user_id'], message, "Transactions")
@@ -743,13 +748,13 @@ def deleteRecursion():
 @login_required
 def profile():
     user = db.execute("select * from users where id = ?", session['user_id'])
-    print(user)
+    year = str(datetime.now().year)
     income = db.execute("SELECT sum(amount) FROM transactions WHERE type = 'Income'  AND ((length(date) = 10 "
-                        "AND substr(date, 1, 4) = '2025') OR (length(date) = 7  AND substr(date, 1, 4) = '2025') OR (length(date) = 7  "
-                        "AND substr(date, 1, 4) = '2025') OR (length(date) = 4 AND substr(date, 1, 4) = '2025'))")
+                        "AND substr(date, 1, 4) = ?) OR (length(date) = 7  AND substr(date, 1, 4) = ?) OR (length(date) = 7  "
+                        "AND substr(date, 1, 4) = ?) OR (length(date) = 4 AND substr(date, 1, 4) = ?))", year, year, year, year)
     expense = db.execute("SELECT sum(amount) FROM transactions WHERE type = 'Expense'  AND ((length(date) = 10 "
-                         "AND substr(date, 1, 4) = '2025') OR (length(date) = 7  AND substr(date, 1, 4) = '2025') OR (length(date) = 7  "
-                         "AND substr(date, 1, 4) = '2025') OR (length(date) = 4 AND substr(date, 1, 4) = '2025'))")
+                         "AND substr(date, 1, 4) = ?) OR (length(date) = 7  AND substr(date, 1, 4) = ?) OR (length(date) = 7  "
+                         "AND substr(date, 1, 4) = ?) OR (length(date) = 4 AND substr(date, 1, 4) = ?))", year, year, year, year)
     if request.method == 'POST':
         name = request.form.get("prUsername")
         mail = request.form.get("prEmail")

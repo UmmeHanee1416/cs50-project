@@ -15,29 +15,35 @@ User Profile
     </div>
     <button class="addSearchBtn" onclick="writeProfile()"><i class="fa-solid fa-user-pen"></i> Edit Profile
     </button>
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-2 gap-2">
         <div>
             <span class="font-semibold text-lg">Basic Information</span>
         </div>
         <div>
             <form action="/profile" method="post" enctype="multipart/form-data">
-                <input type="file" id="prImage" name="prImage" accept="image/*" class="hidden"
-                    onchange="previewImage(event)">
                 <div class="mb-3">
-                    <input autocomplete="off" class="inputBox" name="prUsername" id="prUsername" placeholder="Username"
+                    <input type="file" id="prImage" name="prImage" accept="image/*" class="hidden"
+                        onchange="previewImage(event)">
+                </div>
+                <div class="mb-3 flex flex-row gap-2">
+                    <span class="font-semibold text-md text-justify basis-1/4 mt-2">Username: </span>
+                    <input autocomplete="off" class="inputBox basis-3/4" name="prUsername" id="prUsername" placeholder="Username"
                         type="text" value="{{ user[0]['username'] }}" required readonly>
                 </div>
-                <div class="mb-3">
-                    <input autocomplete="off" class="inputBox" name="prEmail" placeholder="Email" type="text"
+                <div class="mb-3 flex flex-row gap-2">
+                    <span class="font-semibold text-md text-justify basis-1/4 mt-2">Email: </span>
+                    <input autocomplete="off" class="inputBox basis-3/4" name="prEmail" placeholder="Email" type="text"
                         value="{{ user[0]['email'] if user[0]['email'] else '' }}" id="prEmail" required readonly>
                 </div>
-                <div class="mb-3">
-                    <input autocomplete="off" class="inputBox" name="prContact_no" id="prContact_no"
+                <div class="mb-3 flex flex-row gap-2">
+                    <span class="font-semibold text-md text-justify basis-1/4 mt-2">Contact No: </span>
+                    <input autocomplete="off" class="inputBox basis-3/4" name="prContact_no" id="prContact_no"
                         placeholder="Contact No" type="text"
                         value="{{ user[0]['contact_no'] if user[0]['contact_no'] else '' }}" required readonly>
                 </div>
-                <div class="mb-3">
-                    <input autocomplete="off" class="inputBox" name="join_date" placeholder="Joined Date" type="date"
+                <div class="mb-3 flex flex-row gap-2">
+                    <span class="font-semibold text-md text-justify basis-1/4 mt-2">Joined Date: </span>
+                    <input autocomplete="off" class="inputBox basis-3/4" name="join_date" placeholder="Joined Date" type="date"
                         value="{{ user[0]['joined_date'] }}" required readonly>
                 </div>
                 <button class="saveUpdateBtn" type="submit" id="saveBtn" onclick="saveData()" hidden><i
@@ -51,15 +57,18 @@ User Profile
             <span class="font-semibold text-lg">Finacial Information</span>
         </div>
         <div>
-            <div class="mb-3">
-                <input autocomplete="off" class="inputBox" type="text" value="{{ user[0]['cash'] }}" required readonly>
+            <div class="mb-3 flex flex-row gap-2">
+                <span class="font-semibold text-md text-justify basis-1/4 mt-2">Cash: </span>
+                <input autocomplete="off" class="inputBox basis-3/4" type="text" value="{{ user[0]['cash'] }}" required readonly>
             </div>
-            <div class="mb-3">
-                <input autocomplete="off" class="inputBox" type="text" value="{{ income[0]['sum(amount)'] }}" required
+            <div class="mb-3 flex flex-row gap-2">
+                <span class="font-semibold text-md text-justify basis-1/4 mt-2">Income Summary <span class="text-sm font-light">(This year) </span>:</span>
+                <input autocomplete="off" class="inputBox basis-3/4" type="text" value="{{ income[0]['sum(amount)'] }}" required
                     readonly>
             </div>
-            <div class="mb-3">
-                <input autocomplete="off" class="inputBox" type="text" value="{{ expense[0]['sum(amount)'] }}" required
+            <div class="mb-3 flex flex-row gap-2">
+                <span class="font-semibold text-md text-justify basis-1/4 mt-2">Expense Summary <span class="text-sm font-light">(This year) </span>:</span>
+                <input autocomplete="off" class="inputBox basis-3/4" type="text" value="{{ expense[0]['sum(amount)'] }}" required
                     readonly>
             </div>
         </div>
@@ -72,36 +81,25 @@ User Profile
         </div>
         <div>
             <form action="/passwordReset" method="post">
-                <div class="mb-3">
-                    <input autocomplete="off" class="inputBox" name="curr" id="curr" placeholder="Curent Password"
+                <div class="mb-3 flex flex-row gap-2">
+                    <span class="font-semibold text-md text-justify basis-1/4 mt-2">Curent Password: </span>
+                    <input autocomplete="off" class="inputBox basis-3/4" name="curr" id="curr" placeholder="Curent Password"
                         type="password" required>
                 </div>
-                <div class="mb-3">
-                    <input autocomplete="off" class="inputBox" name="newPass" id="newPass" placeholder="New Password"
+                <div class="mb-3 flex flex-row gap-2">
+                    <span class="font-semibold text-md text-justify basis-1/4 mt-2">New Password: </span>
+                    <input autocomplete="off" class="inputBox basis-3/4" name="newPass" id="newPass" placeholder="New Password"
                         type="password" required>
                 </div>
-                <div class="mb-3">
-                    <input autocomplete="off" class="inputBox" name="newCon" id="newCon"
+                <div class="mb-3 flex flex-row gap-2">
+                    <span class="font-semibold text-md text-justify basis-1/4 mt-2">Confirm New Password: </span>
+                    <input autocomplete="off" class="inputBox basis-3/4" name="newCon" id="newCon"
                         placeholder="Confirm New Password" type="password" required>
                 </div>
                 <button class="saveUpdateBtn" type="submit">
                     <i class="fa-solid fa-user-lock"></i> Change Password</button>
             </form>
         </div>
-    </div>
-    <div class="mb-3">
-        <label class="flex items-center cursor-pointer justify-start">
-            <input type="checkbox" name="apply_dark" id="apply_dark" class="sr-only peer" checked onclick="dark()">
-            <div class="relative w-11 h-6 bg-sky-200 peer-focus:outline-none peer-focus:ring-4
-                peer-focus:ring-sky-300 dark:peer-focus:ring-sky-800 rounded-full peer dark:bg-sky-700
-                peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
-                peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px]
-                after:start-[2px] after:bg-white after:border-sky-300 after:border after:rounded-full
-                after:h-5 after:w-5 after:transition-all dark:border-sky-600 peer-checked:bg-sky-600
-                dark:peer-checked:bg-sky-600">
-            </div>
-            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-slate-500">Auto apply</span>
-        </label>
     </div>
 </div>
 
