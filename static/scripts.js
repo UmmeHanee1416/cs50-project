@@ -32,7 +32,16 @@ function changePeriod(type) {
     var to = document.querySelector('#toPeriod')
     var fromYear = document.querySelector('#fromYear')
     var toYear = document.querySelector('#toYear')
-    if (type.value == 'Weekly') {
+     if (type.value == 'Daily') {
+        from.type = 'date'
+        to.type = 'date'
+        from.hidden = false
+        to.hidden = false
+        from.required = true
+        to.required = true
+        fromYear.hidden = true
+        toYear.hidden = true
+    } else if (type.value == 'Weekly') {
         from.type = 'week'
         to.type = 'week'
         from.hidden = false
@@ -123,7 +132,7 @@ async function loadNotifications() {
         <span class="block px-2 py-2 text-sm text-gray-700
         focus:bg-gray-100 focus:outline-none">${n.message}</span>
         <span class="block px-2 py-2 text-sm text-gray-700
-        focus:bg-gray-100 focus:outline-none">${n.datestamp}</span></a>`;
+        focus:bg-gray-100 focus:outline-none">${n.timestamp}</span></a>`;
         n.read ? '' : count++
     });
     countElm.innerText = count

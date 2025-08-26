@@ -38,7 +38,7 @@ db = SQL("sqlite:///project.db")
 
 TRANSACTION_TYPE = ["Income", "Expense"]
 TRANSACTION_CATEGORY_EXPENSE = ["Education", "Entertainment", "Food",
-                                "Grooming", "Medical" "Rent", "Transport", "Utility Bill", "Others"]
+                                "Grooming", "Medical", "Rent", "Transport", "Utility Bill", "Others"]
 TRANSACTION_CATEGORY_INCOME = [
     "Office", "Business", "Freelancing", "Tuition", "Others"]
 PERIOD_TYPE = ['Daily', 'Weekly', 'Monthly', 'Yearly']
@@ -101,6 +101,8 @@ def track():
     actual_sum = 0
     budget_sum = 0
     actual_row = []
+    from_date = ''
+    to_date = ''
     if request.method == 'POST':
         type = request.form.get("type")
         category = request.form.get("category")
@@ -262,7 +264,7 @@ def saveOrUpdateTransaction():
         if type == 'Income':
             userCash += int(amount)
         if type == 'Expense':
-            if not amount > int(user[0]['cash']):
+            if amount > int(user[0]['cash']):
                 return apology("insufficient balance")
             userCash -= int(amount)
         if not category:
@@ -322,7 +324,7 @@ def saveOrUpdateTransaction():
 @login_required
 def getAllTransactions():
     list = db.execute(
-        "select * from transactions where user_id = ? order by id desc", session['user_id'])
+        "select * from transactions where user_id = ? order by timestamp desc", session['user_id'])
     return render_template("transaction/list.html", list=list)
 
 
@@ -493,7 +495,7 @@ def saveOrUpdateBudget():
 def getAllBudgets():
     try:
         list = db.execute(
-            "select * from budgets where user_id = ? order by id desc", session['user_id'])
+            "select * from budgets where user_id = ? order by timestamp desc", session['user_id'])
     except:
         return apology("error occurred!")
     return render_template("budget/list.html", list=list)
@@ -588,7 +590,7 @@ def symbol():
 @login_required
 def getAllInvestments():
     rows = db.execute(
-        "select * from investments where user_id = ? order by id desc", session['user_id'])
+        "select * from investments where user_id = ? order by timestamp desc", session['user_id'])
     return render_template("investment/list.html", rows=rows)
 
 
@@ -622,7 +624,7 @@ def deleteInvestment():
 @login_required
 def getNotifications():
     notifications = db.execute("select * from notifications where user_id = ? "
-                               "order by datestamp desc, timestamp desc", session['user_id'])
+                               "order by timestamp desc", session['user_id'])
     return jsonify(notifications)
 
 
@@ -707,7 +709,7 @@ def saveOrUpdateRecursion():
 def getAllRecursions():
     try:
         transactions = db.execute(
-            "select * from recurring_transaction where user_id = ?", session['user_id'])
+            "select * from recurring_transaction where user_id = ? order by timestamp desc", session['user_id'])
     except:
         return apology("error occurred")
     return render_template("recursive_transaction/list.html", list=transactions)
