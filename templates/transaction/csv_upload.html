@@ -1,0 +1,116 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Upload Transaction CSV
+{% endblock %}
+
+{% block main %}
+<el-dialog>
+  <dialog id="dialog" aria-labelledby="dialog-title"
+    class="fixed inset-0 size-auto max-h-none max-w-none overflow-y-auto bg-transparent backdrop:bg-transparent">
+    <el-dialog-backdrop class="fixed inset-0 bg-gray-500/75 transition-opacity data-closed:opacity-0 data-enter:duration-300
+      data-enter:ease-out data-leave:duration-200 data-leave:ease-in"></el-dialog-backdrop>
+    <div tabindex="0"
+      class="flex min-h-full items-end justify-center p-4 text-center focus:outline-none sm:items-center sm:p-0">
+      <el-dialog-panel class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all
+        data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out
+        data-leave:duration-200 data-leave:ease-in sm:my-8 sm:w-full sm:max-w-lg data-closed:sm:translate-y-0
+        data-closed:sm:scale-95">
+        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="sm:flex sm:items-start">
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+              <h3 id="dialog-title" class="text-base font-semibold text-gray-900"></h3>
+              <div class="mt-2">
+                <table id="csvTable" class="table-auto border-collapse border border-sky-300 w-full text-sm">
+                  <thead class="bg-sky-200"></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+          <button type="button" command="close" commandfor="dialog" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm
+            font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50
+            sm:mt-0 sm:w-auto">Cancel</button>
+        </div>
+      </el-dialog-panel>
+    </div>
+  </dialog>
+</el-dialog>
+<form action="/uploadCsv" method="post" enctype="multipart/form-data">
+  <div class="grid grid-cols-2 space-x-4">
+    <div class="mb-3">
+      <input autocomplete="off" class="inputBox" name="csvFile" id="csvFile" type="file" accept=".csv, .xlsx"
+        placeholder="" required>
+    </div>
+    <div class="grid grid-cols-2 space-x-2">
+      <button command="show-modal" commandfor="dialog" type="button"
+        class="rounded-md bg-gray-950/5 w-11/12 h-10 mt-1 text-sm font-semibold text-gray-900 hover:bg-gray-950/10"
+        disabled id="openModalBtn">Open dialog</button>
+      <button command="show-modal" commandfor="dialog"
+        class="rounded-md bg-gray-950/5 w-11/12 h-10 mt-1 text-sm font-semibold text-gray-900 hover:bg-gray-950/10"
+        disabled id="clearBtn">Clear</button>
+    </div>
+  </div>
+  <button class="saveUpdateBtn" type="submit"><i class="fa-solid fa-receipt"></i> Upload</button>
+</form>
+
+<script>
+  const fileInput = document.querySelector('#csvFile');
+  const tableHead = document.querySelector('#csvTable thead');
+  const tableBody = document.querySelector('#csvTable tbody');
+  const openModalBtn = document.querySelector('#openModalBtn');
+  const clearBtn = document.querySelector('#clearBtn');
+  const dialogTitle = document.querySelector('#dialog-title');
+
+  fileInput.addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const text = e.target.result;
+      openModalBtn.disabled = false;
+      clearBtn.disabled = false;
+      dialogTitle.innerText = file.name
+      displayCSV(text);
+    };
+    reader.readAsText(file);
+  });
+
+  clearBtn.addEventListener('click', function() {
+    tableHead.innerHTML = ''
+    tableBody.innerHTML = ''
+    openModalBtn.disabled = true;
+    clearBtn.disabled = true;
+  })
+
+  function displayCSV(csvText) {
+    const rows = csvText.trim().split('\n').map(row => row.split(','));
+    tableHead.innerHTML = '';
+    tableBody.innerHTML = '';
+
+    const headerRow = document.createElement('tr');
+    rows[0].forEach(cell => {
+      const th = document.createElement('th');
+      th.textContent = cell;
+      th.className = 'border border-gray-300 px-2 py-1';
+      headerRow.appendChild(th);
+    });
+    tableHead.appendChild(headerRow);
+
+    rows.slice(1).forEach(row => {
+      const tr = document.createElement('tr');
+      row.forEach(cell => {
+        const td = document.createElement('td');
+        td.textContent = cell;
+        td.className = 'border border-gray-300 px-2 py-1';
+        tr.appendChild(td);
+      });
+      tableBody.appendChild(tr);
+    });
+  }
+
+</script>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Investment
+{% endblock %}
+
+{% block main %}
+<form action="/saveOrUpdateInvestment" method="post">
+  <input type="hidden" name="id" value="{{ investment[0]['id'] }}">
+  <div class="mb-3 grid grid-cols-2 gap-4">
+    <input autocomplete="off" class="inputBox" name="username" placeholder="Username" type="text"
+      value="{{ user[0]['username'] }}" readonly>
+    <a href="/symbol" class="addSearchBtn"><i class="fa-solid fa-money-bill-trend-up"></i> Stock Market Analysis
+    </a>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="symbol" placeholder="Symbol *"
+      value="{{ investment[0]['symbol'] }}" type="text" required>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="shares" placeholder="Shares *"
+      value="{{ investment[0]['shares'] }}" type="number" required>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="date" placeholder="Purchase date *"
+      value="{{ investment[0]['purchase_date'] }}" type="date" placeholder="Please Select Date"
+      onfocus="(this.type='date')" onblur="(this.type='text')" required>
+  </div>
+  <button class="saveUpdateBtn" type="submit"><i class="fa-solid fa-square-pen"></i> Update</button>
+</form>
+{% endblock %}

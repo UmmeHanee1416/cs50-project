@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Investment
+{% endblock %}
+
+{% block main %}
+<form action="/saveOrUpdateInvestment" method="post">
+  <input type="hidden" name="id">
+  <div class="mb-3 grid grid-cols-2 gap-2">
+    <input autocomplete="off" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-500 text-slate-500
+      focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500" name="username" placeholder="Username" type="text"
+      value="{{ user[0]['username'] }}" readonly>
+    <a href="/symbol" class="mt-1 block w-full px-3 py-2 bg-sky-700 border border-slate-300 rounded-md text-sm shadow-sm placeholder-white text-white
+                focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-semibold">
+      <i class="fa-solid fa-money-bill-trend-up"></i> Stock Market Analysis
+    </a>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="symbol" placeholder="Symbol *" type="text" required>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="shares" placeholder="Shares *" type="number" required>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="date" placeholder="Purchase date *" type="date"
+      placeholder="Please Select Date" onfocus="(this.type='date')" onblur="(this.type='text')" required>
+  </div>
+  <button class="saveUpdateBtn" type="submit"><i class="fa-solid fa-piggy-bank"></i> Create</button>
+</form>
+{% endblock %}

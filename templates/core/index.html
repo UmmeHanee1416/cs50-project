@@ -1,0 +1,178 @@
+{% extends "layout.html" %}
+
+{% block title%}
+Homepage
+{% endblock%}
+
+{% block main %}
+<div class="flex flex-col space-y-12">
+    <div class="grid grid-cols-2 gap-2 place-content-center">
+        <div class="block max-w-sm p-6 bg-white border border-sky-200 rounded-lg shadow-sm
+        hover:bg-sky-100 dark:bg-sky-800 dark:border-sky-700 dark:hover:bg-sky-700 m-auto w-2/5">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight text-sky-900 dark:text-white">Current Balance</h5>
+            <p class="font-normal text-white dark:text-white">{{ user[0]['cash'] }}</p>
+        </div>
+        {% for budget in budgetsYearly %}
+        <div class="card block max-w-sm p-6 bg-white border border-sky-200 rounded-lg shadow-sm
+        hover:bg-sky-100 dark:bg-sky-800 dark:border-sky-700 dark:hover:bg-sky-700 m-auto w-3/5">
+            <div class="progress-container mb-2 text-xl font-bold tracking-tight text-sky-900 dark:text-white">
+                <label for="task-progress">Expense Progress: {{ budget.trans_category }}</label>
+                <div class="w-full bg-sky-100 rounded-full h-4 my-4">
+                    <div class="bg-sky-600 h-4 rounded-full"
+                        style="width: {{ (budget.trans_amount / budget.amount) * 100 }}%"></div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="grid grid-cols-2 gap-2">
+        <div class="w-4/5 m-auto">
+            <canvas id="myIncome"></canvas>
+        </div>
+        <div class="w-4/5 m-auto">
+            <canvas id="myExpense"></canvas>
+        </div>
+    </div>
+    <div class="flex flex-col space-y-6">
+        <span class="font-bold text-lg text-sky-900">Recent Transactions</span>
+        <table class="min-w-full text-sm text-left text-sky-700 border border-sky-200">
+            <thead class="bg-sky-100 text-sky-800 uppercase">
+                <tr>
+                    <th class="px-6 py-3 border-b">Amount</th>
+                    <th class="px-6 py-3 border-b">Type</th>
+                    <th class="px-6 py-3 border-b">Category</th>
+                    <th class="px-6 py-3 border-b">Description</th>
+                    <th class="px-6 py-3 border-b">Date</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-sky-100">
+                {% for data in transactions %}
+                <tr class="hover:bg-sky-50">
+                    <td class="px-6 py-4">{{ data.amount }}</td>
+                    <td class="px-6 py-4">{{ data.type }}</td>
+                    <td class="px-6 py-4">{{ data.category }}</td>
+                    <td class="px-6 py-4">{{ data.description }}</td>
+                    <td class="px-6 py-4">{{ data.date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="flex flex-col space-y-6">
+        <span class="font-bold text-lg text-sky-900">Recent Budgets</span>
+        <table class="min-w-full text-sm text-left text-sky-700 border border-sky-200">
+            <thead class="bg-sky-100 text-sky-800 uppercase">
+                <tr>
+                    <th class="px-6 py-3 border-b">Category</th>
+                    <th class="px-6 py-3 border-b">Amount</th>
+                    <th class="px-6 py-3 border-b">Period Type</th>
+                    <th class="px-6 py-3 border-b">Period</th>
+                    <th class="px-6 py-3 border-b">From</th>
+                    <th class="px-6 py-3 border-b">To</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+                {% for data in budgets %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">{{ data.category }}</td>
+                    <td class="px-6 py-4">{{ data.amount }}</td>
+                    <td class="px-6 py-4">{{ data.period_type }}</td>
+                    <td class="px-6 py-4">{{ data.period }}
+                        {% if data.period_type == 'Weekly' %} weeks
+                        {% elif data.period_type == 'Monthly' %} months
+                        {% else %} years {% endif %}</td>
+                    <td class="px-6 py-4">{{ data.from_period }}</td>
+                    <td class="px-6 py-4">{{ data.to_period }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    var totalIncomeValue = 0;
+    var totalExpenseValue = 0;
+
+    const incomeData = {{ income | tojson }};
+    const expenseData = {{ expense | tojson }};
+
+    const incomeLabels = incomeData.map(item => item.category);
+    const expenseLabels = expenseData.map(item => item.category);
+
+    const incomeValues = incomeData.map(item => item.total);
+    const expenseValues = expenseData.map(item => item.total);
+
+    const totalIncome = incomeData.map(item => totalIncomeValue += item.total);
+    const totalExpense = expenseData.map(item => totalExpenseValue += item.total);
+
+    const ctIncome = document.getElementById('myIncome').getContext('2d');
+    const ctIExpense = document.getElementById('myExpense').getContext('2d');
+
+    new Chart(ctIncome, {
+        type: 'bar', // Type of chart (e.g., 'bar', 'line', 'pie')
+        data: {
+            labels: incomeLabels,
+            datasets: [{
+                label: 'Income: ' + totalIncomeValue,
+                data: incomeValues,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    new Chart(ctIExpense, {
+        type: 'bar', // Type of chart (e.g., 'bar', 'line', 'pie')
+        data: {
+            labels: expenseLabels,
+            datasets: [{
+                label: 'Expense: ' + totalExpenseValue,
+                data: expenseValues,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+</script>
+{% endblock %}

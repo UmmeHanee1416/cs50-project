@@ -1,0 +1,124 @@
+{% extends "layout.html" %}
+
+{% block title%}
+Tracking
+{% endblock%}
+
+{% block main %}
+<div class="flex flex-col space-y-6">
+    <form action="/tracking" method="post">
+        <div class="mb-3">
+            <select class="inputBox" name="type" onchange="changePeriod(this)">
+                <option value="" selected disabled>Please Select Type *</option>
+                {% for type in types %}
+                <option value="{{ type }}">{{ type }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <select class="inputBox" name="category" id="category" required>
+                <option value="" selected disabled>Please Select Category *</option>
+                {% for category in categories %}
+                <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <input autocomplete="off" class="inputBox" name="fromPeriod" id="fromPeriod"
+            placeholder="Please Select From Date" onblur="(this.type='text')" required>
+            <select id="fromYear" name="fromYear" class="inputBox" hidden>
+                <option value="">Select Year From</option>
+                <script>
+                    const currentYear = new Date().getFullYear();
+                    const startYear = 1990;
+                    const endYear = currentYear + 20;
+                    for (let year = startYear; year <= endYear; year++) {
+                        document.write(`<option value="${year}">${year}</option>`);
+                    }
+                </script>
+            </select>
+        </div>
+        <div class="mb-3">
+            <input autocomplete="off" class="inputBox" name="toPeriod" id="toPeriod"
+            placeholder="Please Select To Date" onblur="(this.type='text')" required>
+            <select id="toYear" name="toYear" class="inputBox" hidden>
+                <option value="">Select Year To</option>
+                <script>
+                    for (let year = startYear; year <= endYear; year++) {
+                        document.write(`<option value="${year}">${year}</option>`);
+                    }
+                </script>
+            </select>
+        </div>
+        <button class="saveUpdateBtn" type="submit"><i class="fa-solid fa-seedling"></i> View</button>
+    </form>
+
+    <div class="w-full bg-gray-200 rounded-full h-4 mb-3">
+        <div class="bg-blue-600 h-4 rounded-full text-xs text-white text-center" style="width: {{ progress }}%">
+            {{ progress | round(1) }} %
+        </div>
+    </div>
+    <div class="w-1/4 m-auto mt-1 mb-3">
+        <canvas id="myIncome"></canvas>
+    </div>
+    <div class="flex flex-col space-y-6 mt-1">
+        <span class="font-bold text-lg text-sky-900">Recent Transactions</span>
+        <table class="min-w-full text-sm text-left text-sky-700 border border-sky-200">
+            <thead class="bg-sky-100 text-sky-800 uppercase">
+                <tr>
+                    <th class="px-6 py-3 border-b">Amount</th>
+                    <th class="px-6 py-3 border-b">Type</th>
+                    <th class="px-6 py-3 border-b">Category</th>
+                    <th class="px-6 py-3 border-b">Description</th>
+                    <th class="px-6 py-3 border-b">Date</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-sky-100">
+                {% for data in actual_row %}
+                <tr class="hover:bg-sky-50">
+                    <td class="px-6 py-4">{{ data.amount }}</td>
+                    <td class="px-6 py-4">{{ data.type }}</td>
+                    <td class="px-6 py-4">{{ data.category }}</td>
+                    <td class="px-6 py-4">{{ data.description }}</td>
+                    <td class="px-6 py-4">{{ data.date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script>
+    var ctIncome = document.querySelector('#myIncome')
+    const actual_sum = {{ actual_sum | tojson }};
+    const budget_sum = {{ budget_sum | tojson }};
+    new Chart(ctIncome, {
+        type: 'pie', // Type of chart (e.g., 'bar', 'line', 'pie')
+        data: {
+            labels: ['Expense', 'Budget'],
+            datasets: [{
+                label: 'Expense',
+                data: [actual_sum, budget_sum],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

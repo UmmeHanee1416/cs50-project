@@ -1,0 +1,86 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Budget
+{% endblock %}
+
+{% block main %}
+<form action="/saveOrUpdateBudget" method="post">
+  <input type="hidden" name="id" value="{{ budget[0]['id'] }}">
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="username" placeholder="Username" type="text"
+      value="{{ user[0]['username'] }}" required readonly>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="amount" placeholder="Amount *" type="number"
+      value="{{ budget[0]['amount'] }}" required>
+  </div>
+  <div class="mb-3">
+    <select class="inputBox" name="category" id="category">
+      <option value="" selected disabled>Please Select Category *</option>
+      {% for category in categories %}
+      <option value="{{ category }}" {% if category==budget[0]['category'] %} selected {% endif %}>{{ category }}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <select class="inputBox" name="period_type" id="period_type" onchange="changePeriod(this)">
+      <option value="" selected disabled>Please Select Type *</option>
+      {% for type in types %}
+      <option value="{{ type }}" {% if type==budget[0]['period_type'] %} selected {% endif %}>{{ type }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="fromPeriod" id="fromPeriod" {%
+      if 'Yearly'==budget[0]['period_type'] %} hidden {% endif%} {% if 'Weekly'==budget[0]['period_type'] %} type="week"
+      {% elif 'Monthly'==budget[0]['period_type'] %} type="month" {% endif %} value="{{ budget[0]['from_period'] }}"
+      placeholder="Please Select From Date" onblur="(this.type='text')" required>
+    <select id="fromYear" name="fromYear" class="inputBox" {% if 'Yearly' !=budget[0]['period_type'] %} hidden {%
+      endif%}>
+      <option value="">Select Year From</option>
+      <script>
+        const fromYear = document.getElementById('fromYear');
+        const currentYear = new Date().getFullYear();
+        const startYear = 1990;
+        const endYear = currentYear + 20;
+        for (let year = startYear; year <= endYear; year++) {
+          const option = document.createElement('option');
+          option.value = year;
+          option.textContent = year;
+          if (year === {{ budget[0]['from_period'] }
+        } ) {
+          option.selected = true;
+        }
+        fromYear.appendChild(option);
+        }
+      </script>
+    </select>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="toPeriod" id="toPeriod" {% if 'Yearly'==budget[0]['period_type'] %}
+      hidden {% endif%} {% if 'Weekly'==budget[0]['period_type'] %} type="week" {%
+      elif 'Monthly'==budget[0]['period_type'] %} type="month" {% endif %} value="{{ budget[0]['to_period'] }}"
+      placeholder="Please Select To Date" onblur="(this.type='text')" required>
+    <select id="toYear" name="toYear" class="inputBox" {% if 'Yearly' !=budget[0]['period_type'] %} hidden {% endif%}>
+      <option value="">Select Year To</option>
+      <script>
+        const toYear = document.getElementById('toYear');
+        for (let year = startYear; year <= endYear; year++) {
+          const option = document.createElement('option');
+          option.value = year;
+          option.textContent = year;
+          if (year === {{ budget[0]['to_period'] }
+        }) {
+          option.selected = true;
+        }
+        toYear.appendChild(option);
+        }
+      </script>
+    </select>
+  </div>
+  <button class="saveUpdateBtn" type="submit"><i class="fa-solid fa-square-pen"></i> Update</button>
+</form>
+{% endblock %}
+

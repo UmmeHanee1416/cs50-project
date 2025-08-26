@@ -1,0 +1,81 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Periodic Transaction
+{% endblock %}
+
+{% block main %}
+<form action="/saveOrUpdateRecursion" method="post">
+  <input type="hidden" name="id" value="{{ transaction[0]['id'] }}">
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="username" placeholder="Username" type="text"
+      value="{{ user[0]['username'] }}" required readonly>
+  </div>
+  <div class="mb-3">
+    <select class="inputBox" name="type" onchange="getCategory(this)">
+      <option value="" selected disabled>Please Select Type *</option>
+      {% for type in types %}
+      <option value="{{ type }}" {% if type==transaction[0]['type'] %} selected {% endif %}>{{ type }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <select class="inputBox" name="category" id="category">
+      <option value="" selected disabled>Please Select Category *</option>
+      {% for category in categories %}
+      <option value="{{ category }}" {% if category==transaction[0]['category'] %}selected{% endif %}>{{ category }}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="amount" placeholder="Amount *" type="number" required
+      value="{{ transaction[0]['amount'] }}">
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="start_date" id="start_date" placeholder="Start Date"
+      onfocus="(this.type='date')" onblur="(this.type='text')" value="{{ transaction[0]['start_date'] }}" required>
+  </div>
+  <div class="mb-3">
+    <select class="inputBox" name="frequency" id="frequency" required>
+      <option value="" selected disabled>Please Select Frequency Type *</option>
+      {% for type in period_type %}
+      <option value="{{ type }}" {% if type==transaction[0]['frequency'] %}selected{% endif %}>{{ type }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="frequency_count" id="frequency_count" type="number"
+      placeholder="Frequency Count" onkeyup="calculateDueDate(this)" value="{{ transaction[0]['frequency_count'] }}"
+      required>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="next_due" id="next_due" type="text" placeholder="Next Due"
+      value="{{ transaction[0]['next_due'] }}" required readonly>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="end_date" id="end_date" placeholder="End Date"
+      onfocus="(this.type='date')" onblur="(this.type='text')" value="{{ transaction[0]['end_date'] }}">
+  </div>
+  <div class="mb-3">
+    <textarea class="inputBox" name="description"
+      placeholder="Description (Optional)">{{ transaction[0]['description'] }}</textarea>
+  </div>
+  <div class="mb-3">
+    <label class="flex items-center cursor-pointer justify-start">
+      <input type="checkbox" name="auto_apply" id="auto_apply" class="sr-only peer" {% if
+        transaction[0]['auto_apply']==1 %} checked {% endif %}>
+      <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4
+            peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700
+            peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
+            peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px]
+            after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full
+            after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600
+            dark:peer-checked:bg-sky-600">
+      </div>
+      <span class="ms-3 text-sm font-medium text-gray-900 dark:text-slate-500">Auto apply</span>
+    </label>
+  </div>
+  <button class="saveUpdateBtn" type="submit"><i class="fa-solid fa-square-pen"></i> Update</button>
+</form>
+{% endblock %}

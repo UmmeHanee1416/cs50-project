@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Budgets
+{% endblock %}
+
+{% block main %}
+<a href="/saveOrUpdateInvestment" class="addSearchBtn">
+    <i class="fa-solid fa-hand-holding-dollar"></i> Add New Investment
+</a>
+<table class="min-w-full text-sm text-left text-gray-700 border border-gray-200">
+    <thead class="bg-sky-100 text-gray-800 uppercase">
+        <tr>
+            <th class="px-6 py-3 border-b">Symbol</th>
+            <th class="px-6 py-3 border-b">Shares</th>
+            <th class="px-6 py-3 border-b">Price</th>
+            <th class="px-6 py-3 border-b">Total Price</th>
+            <th class="px-6 py-3 border-b">Purchase Date</th>
+            <th class="px-6 py-3 border-b">Action</th>
+        </tr>
+    </thead>
+    <tbody class="bg-sky-50 divide-y divide-gray-100">
+        {% for data in rows %}
+        <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4">{{ data.symbol }}</td>
+            <td class="px-6 py-4">{{ data.shares }}</td>
+            <td class="px-6 py-4">{{ data.price }}</td>
+            <td class="px-6 py-4">{{ data.total_price }}</td>
+            <td class="px-6 py-4">{{ data.purchase_date }}</td>
+            <td class="px-6 py-4 space-x-2">
+                <a href="/getInvestmentById?id={{ data.id }}">
+                    <button class="editBtn"><i class="fa-solid fa-square-pen"></i> Edit</button></a>
+                <a href="/deleteInvestment?id={{ data.id }}">
+                    <button class="deleteBtn"><i class="fa-solid fa-trash"></i> Delete</button>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Budget
+{% endblock %}
+
+{% block main %}
+<form action="/saveOrUpdateBudget" method="post">
+  <input type="hidden" name="id">
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="username" placeholder="Username" type="text"
+      value="{{ user[0]['username'] }}" required readonly>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="amount" placeholder="Amount *" type="number" required>
+  </div>
+  <div class="mb-3">
+    <select class="inputBox" name="category" id="category" required>
+      <option value="" selected disabled>Please Select Category *</option>
+      {% for category in categories %}
+      <option value="{{ category }}">{{ category }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <select class="inputBox" name="period_type" id="period_type" onchange="changePeriod(this)" required>
+      <option value="" selected disabled>Please Select Type *</option>
+      {% for type in types %}
+      <option value="{{ type }}">{{ type }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="fromPeriod" id="fromPeriod"
+    placeholder="Please Select From Date" onblur="(this.type='text')" required>
+    <select id="fromYear" name="fromYear" class="inputBox" hidden>
+      <option value="">Select Year From</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="toPeriod" id="toPeriod"
+    placeholder="Please Select To Date" onblur="(this.type='text')" required>
+    <select id="toYear" name="toYear" class="inputBox" hidden>
+      <option value="">Select Year To</option>
+    </select>
+  </div>
+  <button class="saveUpdateBtn" type="submit"><i class="fa-solid fa-piggy-bank"></i> Create</button>
+</form>
+{% endblock %}

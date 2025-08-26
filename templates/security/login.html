@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Log In
+{% endblock %}
+
+{% block main %}
+<form action="/login" method="post">
+  <div class="mb-3 place-content-center">
+    <input autocomplete="off" autofocus class="inputBox" name="username" placeholder="Username" type="text" required>
+  </div>
+  <div class="mb-3">
+    <input class="inputBox" name="password" placeholder="Password" type="password">
+  </div>
+  <button class="saveUpdateBtn" type="submit">
+    <i class="fa-solid fa-user-pen"></i> Log In</button>
+</form>
+<a href="/forgotPass" class="text-sky-600 hover:underline">Forgot Password?</a>
+{% endblock %}

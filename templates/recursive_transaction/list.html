@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Periodic Transactions
+{% endblock %}
+
+{% block main %}
+<a href="/saveOrUpdateRecursion" class="addSearchBtn">
+    <i class="fa-solid fa-coins"></i> Add New Periodic Transaction
+</a>
+
+<table class="min-w-full text-sm text-left text-gray-700 border border-gray-200">
+    <thead class="bg-sky-100 text-gray-800 uppercase">
+        <tr>
+            <th class="px-6 py-3 border-b">Type</th>
+            <th class="px-6 py-3 border-b">Category</th>
+            <th class="px-6 py-3 border-b">Amount</th>
+            <th class="px-6 py-3 border-b">Start Date</th>
+            <th class="px-6 py-3 border-b">Frequency</th>
+            <th class="px-6 py-3 border-b">Frequency Count</th>
+            <th class="px-6 py-3 border-b">Next Due</th>
+            <th class="px-6 py-3 border-b">Auto Apply</th>
+            <th class="px-6 py-3 border-b">Description</th>
+            <th class="px-6 py-3 border-b">Action</th>
+        </tr>
+    </thead>
+    <tbody class="bg-sky-50 divide-y divide-gray-100">
+        {% for data in list %}
+        <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4">{{ data.type }}</td>
+            <td class="px-6 py-4">{{ data.category }}</td>
+            <td class="px-6 py-4">{{ data.amount }}</td>
+            <td class="px-6 py-4">{{ data.start_date }}</td>
+            <td class="px-6 py-4">{{ data.frequency }}</td>
+            <td class="px-6 py-4">{{ data.frequency_count }}</td>
+            <td class="px-6 py-4">{{ data.next_due }}</td>
+            <td class="px-6 py-4">{% if data.auto_apply == 1 %} On {% else %} Off {% endif %}</td>
+            <td class="px-6 py-4">{{ data.description }}</td>
+            <td class="px-6 py-4 space-x-2">
+                <a href="/getRecursionById?id={{ data.id }}">
+                    <button class="editBtn"><i class="fa-solid fa-square-pen"></i> Edit</button></a>
+                <a href="/deleteRecursion?id={{ data.id }}">
+                    <button class="deleteBtn"><i class="fa-solid fa-trash"></i> Delete</button>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

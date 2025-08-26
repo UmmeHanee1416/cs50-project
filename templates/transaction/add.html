@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Transaction
+{% endblock %}
+
+{% block main %}
+<div class="flex grid-col-2 gap-2 justify-end">
+  <a href="/uploadCsv" class="addSearchBtn"><i class="fa-solid fa-file-invoice-dollar"></i> 
+    Upload CSV / Excell
+  </a>
+</div>
+<form action="/saveOrUpdateTransaction" method="post">
+  <input type="hidden" name="id">
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="username" placeholder="Username" type="text"
+      value="{{ user[0]['username'] }}" required readonly>
+  </div>
+  <div class="mb-3">
+    <select class="inputBox" name="type" onchange="getCategory(this)">
+      <option value="" selected disabled>Please Select Type *</option>
+      {% for type in types %}
+      <option value="{{ type }}">{{ type }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="amount" placeholder="Amount *" type="number" required>
+  </div>
+  <div class="mb-3">
+    <select class="inputBox" name="category" id="category">
+      <option value="" selected disabled>Please Select Category *</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <select class="inputBox" name="date_type" id="date_type" onchange="changePeriodT(this)" required>
+      <option value="" selected disabled>Please Select Type *</option>
+      {% for type in period_type %}
+      <option value="{{ type }}">{{ type }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="date" id="date" placeholder="Please Select Date"
+    onblur="(this.type='text')"required>
+    <select id="dateY" name="dateY" class="inputBox" hidden>
+      <option value="">Select Year</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <textarea class="inputBox" name="description" placeholder="Description (Optional)"></textarea>
+  </div>
+  <button class="saveUpdateBtn" type="submit"><i class="fa-solid fa-piggy-bank"></i> Create</button>
+</form>
+{% endblock %}

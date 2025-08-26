@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Transaction
+{% endblock %}
+
+{% block main %}
+<form action="/saveOrUpdateTransaction" method="post">
+  <input type="hidden" name="id" value="{{ transaction[0]['id'] }}">
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="username" placeholder="Username" type="text"
+      value="{{ user[0]['username'] }}" required readonly>
+  </div>
+  <div class="mb-3">
+    <select class="inputBox" name="type" onchange="getCategory(this)">
+      <option value="" selected disabled>Please Select Type *</option>
+      {% for type in types %}
+      <option value="{{ type }}" {% if type==transaction[0]['type'] %}selected{% endif %}>{{ type }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="amount" placeholder="Amount *" type="number"
+      value="{{ transaction[0]['amount'] }}" required>
+  </div>
+  <div class="mb-3">
+    <select class="inputBox" name="category" id="category">
+      <option value="" selected disabled>Please Select Category *</option>
+      {% for category in categories %}
+      <option value="{{ category }}" {% if category==transaction[0]['category'] %}selected{% endif %}>{{ category }}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <select class="inputBox" name="date_type" id="date_type" onchange="changePeriodT(this)" required>
+      <option value="" selected disabled>Please Select Type *</option>
+      {% for type in period_type %}
+      <option value="{{ type }}" {% if type==transaction[0]['date_type'] %}selected{% endif %}>{{ type }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <input autocomplete="off" class="inputBox" name="date" id="date" {%if 'Yearly'==transaction[0]['date_type'] %}
+      hidden {% endif %} {% if 'Weekly'==transaction[0]['date_type'] %} type="week" {%
+      elif 'Monthly'==transaction[0]['date_type'] %} type="month" {% endif %} value="{{ transaction[0]['date'] }}"
+      placeholder="Please Select Date" onblur="(this.type='text')" required>
+    <select id="dateY" name="dateY" class="inputBox" {%if 'Yearly' !=transaction[0]['date_type'] %} hidden {% endif %}>
+      <option value="">Select Year</option>
+      <script>
+        const dateY = document.getElementById('dateY');
+        const currentYear = new Date().getFullYear();
+        const startYear = 1990;
+        const endYear = currentYear + 20;
+        for (let year = startYear; year <= endYear; year++) {
+          const option = document.createElement('option');
+          option.value = year;
+          option.textContent = year;
+          if (year === {{ transaction[0]['date'] }
+        }) {
+          option.selected = true;
+        }
+        dateY.appendChild(option);
+        }
+      </script>
+    </select>
+  </div>
+  <div class="mb-3">
+    <textarea class="inputBox" name="description"
+      placeholder="Description (Optional)">{{ transaction[0]['description'] }}</textarea>
+  </div>
+  <button class="saveUpdateBtn" type="submit"><i class="fa-solid fa-square-pen"></i> Update</button>
+</form>
+{% endblock %}

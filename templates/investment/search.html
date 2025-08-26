@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Search
+{% endblock %}
+
+{% block main %}
+<form action="/symbol" method="post">
+    <div class="mb-3">
+        <input autocomplete="off" class="inputBox" name="symbol" placeholder="Symbol" type="text">
+    </div>
+    <button class="saveUpdateBtn" type="submit"><i class="fa-solid fa-magnifying-glass-dollar"></i> Search</button>
+</form>
+{% if row %}
+<table class="min-w-full text-sm text-left text-gray-700 border border-gray-200">
+    <thead class="bg-gray-100 text-gray-800 uppercase">
+        <tr>
+            <th class="px-6 py-3 border-b">Name</th>
+            <th class="px-6 py-3 border-b">Symbol</th>
+            <th class="px-6 py-3 border-b">Price</th>
+        </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-100">
+        <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4">{{ row['name'] }}</td>
+            <td class="px-6 py-4">{{ row['symbol'] }}</td>
+            <td class="px-6 py-4">${{ row['price'] }}</td>
+        </tr>
+    </tbody>
+</table>
+{% else %}
+<span>
+    No Data Found!
+</span>
+{% endif %}
+{% endblock %}

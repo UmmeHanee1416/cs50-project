@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Transactions
+{% endblock %}
+
+{% block main %}
+<div class="flex grid-col-2 gap-2 justify-end">
+    <a href="/saveOrUpdateTransaction" class="addSearchBtn">
+        <i class="fa-solid fa-wallet"></i> Add New Transaction
+    </a>
+    <a href="/getAllRecursions" class="addSearchBtn">
+        <i class="fa-solid fa-coins"></i> Periodic Transaction
+    </a>
+</div>
+
+<table class="min-w-full text-sm text-left text-gray-700 border border-gray-200">
+    <thead class="bg-sky-100 text-gray-800 uppercase">
+        <tr>
+            <th class="px-6 py-3 border-b">Amount</th>
+            <th class="px-6 py-3 border-b">Type</th>
+            <th class="px-6 py-3 border-b">Category</th>
+            <th class="px-6 py-3 border-b">Description</th>
+            <th class="px-6 py-3 border-b">Date</th>
+            <th class="px-6 py-3 border-b">Action</th>
+        </tr>
+    </thead>
+    <tbody class="bg-sky-50 divide-y divide-gray-100">
+        {% for data in list %}
+        <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4">{{ data.amount }}</td>
+            <td class="px-6 py-4">{{ data.type }}</td>
+            <td class="px-6 py-4">{{ data.category }}</td>
+            <td class="px-6 py-4">{{ data.description }}</td>
+            <td class="px-6 py-4">{{ data.date }}</td>
+            <td class="px-6 py-4 space-x-2">
+                <a href="/getTransactionById?id={{ data.id }}">
+                    <button class="editBtn"><i class="fa-solid fa-square-pen"></i> Edit</button></a>
+                <a href="/deleteTransaction?id={{ data.id }}">
+                    <button class="deleteBtn"><i class="fa-solid fa-trash"></i> Delete</button>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
